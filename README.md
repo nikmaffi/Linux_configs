@@ -1,2 +1,2 @@
-# linux_configs
-Linux configurations
+# Linux configs
+Linux configuration files
