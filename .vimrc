@@ -38,4 +38,3 @@ endfunction
 :command Term call s:SetupTerminal()
 
 autocmd VimEnter * call s:SetupVim()
-autocmd bufenter * if(winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
