@@ -22,9 +22,12 @@ au BufNewFile,BufRead *.COB set filetype=cobol
 :colorscheme catppuccin_mocha
 
 function! s:SetupVim()
-	if &filetype !=# 'nerdtree'
-		NERDTreeFind
+	if bufexists(1) && bufname(1) ==# ''
+		NERDTree $HOME
 		execute "normal! \<C-w>l"
+	elseif &filetype !=# 'nerdtree'
+		NERDTreeFind
+		execute "normal! \<C-w>l" 
 	endif
 endfunction
 
