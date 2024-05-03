@@ -3,4 +3,5 @@
 alias la='ls -a'
 alias ll='ls -la'
 
-cowsay Welcome back ${USER^}!
+# cowsay Welcome back ${USER^}
+neofetch
