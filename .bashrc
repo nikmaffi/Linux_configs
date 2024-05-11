@@ -8,4 +8,5 @@ alias ll='ls -la'
 alias updateall='sudo pacman -Syu && yay -Syu && conda update -n base --all && conda update -n appdev --all && conda update -n appdev python'
 
 #cowsay Hello $(whoami)!
-neofetch
+#cowsay Hello ${USER^}!
+#neofetch
