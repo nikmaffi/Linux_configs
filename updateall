@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Update Arch
+sudo pacman -Syu
+
+# Update AUR packages
+sudo yay -Syu
+
+# Check if anaconda is installed
+if command -v conda &> /dev/null; then
+	conda update -n base --all
+	conda update -n appdev --all
+	conda update -n appdev python
+fi
+
+# Check if flatpak is installed
+if command -v flatpak &> /dev/null; then
+	flatpak update
+fi
