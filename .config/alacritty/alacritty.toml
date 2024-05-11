@@ -1,0 +1,24 @@
+import = [
+	"~/.config/alacritty/catppuccin-mocha.toml"
+	#"~/.config/alacritty/solarized-dark.toml"
+]
+
+[window]
+opacity = 0.95
+
+dimensions.columns = 120
+dimensions.lines = 30
+
+padding.x = 5
+padding.y = 5
+
+decorations = "Full"
+decorations_theme_variant = "Dark"
+
+[font]
+normal.family = "Hasklug Nerd Font"
+bold.family = "Hasklug Nerd Font"
+italic.family = "Hasklug Nerd Font"
+bold_italic.family = "Hasklug Nerd Font"
+
+size = 11
