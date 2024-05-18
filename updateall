@@ -4,7 +4,9 @@
 sudo pacman -Syu
 
 # Update AUR packages
-yay -Syu
+if command -v yay &> /dev/null; then
+	yay -Syu
+fi
 
 # Check if anaconda is installed
 if command -v conda &> /dev/null; then
