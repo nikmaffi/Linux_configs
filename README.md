@@ -4,6 +4,6 @@ This repository is a collection of configuration files that I use to setup a new
 ### Can I use this configuration files?
 Yes, you can use them but I recommend being careful and changing configurations that aren't right for you.
 
-### Alacritty themes projects
+### Alacritty themes references
 - [Catppuccin](https://catppuccin.com/)
 - [Solarized Dark](https://ethanschoonover.com/solarized/)
