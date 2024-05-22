@@ -5,8 +5,8 @@ alias tree='tree -C'
 alias la='ls -a'
 alias ll='ls -lah'
 
-alias pbcopy='xsel --input --clipboard'
-alias pbpaste='xsel --output --clipboard'
+alias pbcopy='wl-copy'
+alias pbpaste='wl-paste'
 
 #cowsay Hello $(whoami)!
 #cowsay Hello ${USER^}!
