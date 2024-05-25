@@ -31,5 +31,7 @@ endfunction
 
 :command Term belowright term
 :command Tree call s:SetupTree()
+:command -range=% Pbcopy '<,'>y | call system('wl-copy', @0)
+:command Pbpaste put =system('wl-paste')
 
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
