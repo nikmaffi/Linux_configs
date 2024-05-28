@@ -10,6 +10,6 @@ alias pbpaste='wl-paste'
 
 #cowsay Hello $(whoami)!
 #cowsay Hello ${USER^}!
-#neofetch
+#fastfetch
 
 eval "$(starship init bash)"
