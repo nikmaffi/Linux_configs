@@ -31,7 +31,13 @@ endfunction
 
 :command Term belowright term
 :command Tree call s:SetupTree()
-:command -range=% Pbcopy '<,'>y | call system('wl-copy', @0)
-:command Pbpaste put =system('wl-paste')
+
+if $XDG_SESSION_TYPE == 'wayland'
+	:command -range=% Pbcopy '<,'>y | call system('wl-copy', @0)
+	:command Pbpaste put =system('wl-paste')
+elseif $XDG_SESSION_TYPE == 'x11'
+	:command -range=% Pbcopy '<,'>y | call system('xsel --input --clipboard', @0)
+	:command Pbpaste put =system('xsel --output --clipboard')
+endif
 
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
