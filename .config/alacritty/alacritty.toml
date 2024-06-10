@@ -6,8 +6,8 @@ import = [
 [window]
 opacity = 0.95
 
-dimensions.columns = 120
-dimensions.lines = 30
+dimensions.columns = 150
+dimensions.lines = 40
 
 padding.x = 5
 padding.y = 5
@@ -16,9 +16,9 @@ decorations = "Full"
 decorations_theme_variant = "Dark"
 
 [font]
-normal.family = "Hasklug Nerd Font"
-bold.family = "Hasklug Nerd Font"
-italic.family = "Hasklug Nerd Font"
-bold_italic.family = "Hasklug Nerd Font"
+normal.family = "Source Code Pro"
+bold.family = "Source Code Pro"
+italic.family = "Source Code Pro"
+bold_italic.family = "Source Code Pro"
 
 size = 11
