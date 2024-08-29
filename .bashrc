@@ -7,8 +7,6 @@ alias tree='tree -C'
 alias la='ls -a'
 alias ll='ls -lah'
 
-alias diff='diff -y'
-
 if [ $XDG_SESSION_TYPE == "wayland" ]
 then
 	alias pbcopy='wl-copy'
