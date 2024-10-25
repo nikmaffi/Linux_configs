@@ -1,7 +1,3 @@
-import = [
-	"~/.config/alacritty/catppuccin-mocha.toml"
-	#"~/.config/alacritty/solarized-dark.toml"
-]
 
 [window]
 opacity = 0.95
@@ -22,3 +18,9 @@ italic.family = "SauceCodePro Nerd Font"
 bold_italic.family = "SauceCodePro Nerd Font"
 
 size = 11.25
+
+[general]
+import = [
+	"~/.config/alacritty/catppuccin-mocha.toml"
+	#"~/.config/alacritty/solarized-dark.toml"
+]
