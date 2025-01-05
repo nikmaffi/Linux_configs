@@ -2,7 +2,6 @@ call plug#begin()
 
 Plug 'preservim/nerdtree'
 Plug 'jiangmiao/auto-pairs'
-Plug 'ervandew/supertab'
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 
 call plug#end()
