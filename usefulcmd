@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "ssh   --> ssh -p port user@host"
+echo "sshfs --> sshfs user@host:dir mount -p port"
+echo "rsync --> rsync -va(n) --delete src dst"

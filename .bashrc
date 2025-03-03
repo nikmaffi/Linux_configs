@@ -1,6 +1,6 @@
 
 # User configurations
-alias rclonemnt='rclone mount gdrive:/Drive ~/Documenti/Drive'
+#alias rclonemnt='rclone mount gdrive:/Drive ~/Documenti/Drive'
 
 alias tree='tree -C'
 
@@ -17,9 +17,12 @@ then
 	alias pbpaste='xsel --output --clipboard'
 fi
 
+export PATH="$PATH:.../Linux_configs"
+export PATH="$PATH:.../rpn_calc/bin"
+
 #cowsay Hello $(whoami)!
 #cowsay Hello ${USER^}!
-fastfetch
+#fastfetch
 
 #eval "$(starship init bash)"
 PS1='[\e[1;32m\u@\h\e[0m \e[1;34m\W\e[0m]\$ '
