@@ -1,0 +1,65 @@
+#!/bin/zsh
+
+# check project name
+if [ -z "$1" ]; then
+    echo "Use: $0 <project_name>"
+    exit -1
+fi
+
+PRJ_NAME="$1"
+PRJ_DIR="./$PRJ_NAME"
+
+# creating project directory structure
+mkdir -p "$PRJ_DIR"/{src,include,bin,obj,tests,lib}
+
+# creating main.c file
+cat > "$PRJ_DIR/src/main.c" <<EOL
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+
+
+    return 0;
+}
+EOL
+
+# creating Makefile
+cat > "$PRJ_DIR/Makefile" <<EOL
+CC=gcc
+DB=gdb
+
+CFLAGS=-Wall -Wextra -Iinclude
+DEBUG_FLAGS=-g\$(DB) -DDEBUG
+RELEASE_FLAGS=-O2 -DNDEBUG
+
+SRC_DIR=src
+OBJ_DIR=obj
+BIN_DIR=bin
+INCLUDE_DIR=include
+
+SRCS=\$(wildcard \$(SRC_DIR)/*.c)
+OBJS=\$(patsubst \$(SRC_DIR)/%.c, \$(OBJ_DIR)/%.o, \$(SRCS))
+
+BIN=\$(BIN_DIR)/$PRJ_NAME
+
+all: debug
+
+\$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.c
+	\$(CC) \$(CFLAGS) -c \$< -o \$@
+
+debug: CFLAGS+=\$(DEBUG_FLAGS)
+debug: \$(BIN)
+
+release: CFLAGS+=\$(RELEASE_FLAGS)
+release: \$(BIN)
+
+\$(BIN): \$(OBJS)
+	\$(CC) \$(CFLAGS) \$^ -o \$@
+
+clean:
+	rm -rf \$(OBJ_DIR)/*.o \$(BIN)
+EOL
+
+echo "Project '$PRJ_NAME' successfully created!"
