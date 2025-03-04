@@ -53,6 +53,7 @@ debug: CFLAGS+=\$(DEBUG_FLAGS)
 debug: \$(BIN)
 
 release: CFLAGS+=\$(RELEASE_FLAGS)
+release: clean
 release: \$(BIN)
 
 \$(BIN): \$(OBJS)
