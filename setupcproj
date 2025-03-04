@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # check project name
 if [ -z "$1" ]; then
