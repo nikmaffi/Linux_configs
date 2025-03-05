@@ -60,7 +60,7 @@ release: \$(BIN)
 	\$(CC) \$(CFLAGS) \$^ -o \$@
 
 clean:
-	rm -rf \$(OBJ_DIR)/*.o \$(BIN)
+	rm -rf \$(OBJ_DIR)/* \$(BIN_DIR)/*
 EOL
 
 echo "Project '$PRJ_NAME' successfully created!"
