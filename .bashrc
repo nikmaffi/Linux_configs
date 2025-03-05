@@ -18,7 +18,7 @@ then
 fi
 
 export PATH="$PATH:.../Linux_configs"
-export PATH="$PATH:.../rpn_calc/bin"
+export PATH="$PATH:.../calc/bin"
 
 #cowsay Hello $(whoami)!
 #cowsay Hello ${USER^}!
