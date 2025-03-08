@@ -7,6 +7,7 @@ Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 call plug#end()
 
 :set number
+:set relativenumber
 :set autoindent
 :set tabstop=4
 :set shiftwidth=4
@@ -30,13 +31,5 @@ endfunction
 
 :command Term belowright term
 :command Tree call s:SetupTree()
-
-if $XDG_SESSION_TYPE == 'wayland'
-	:command -range=% Pbcopy '<,'>y | call system('wl-copy', @0)
-	:command Pbpaste put =system('wl-paste')
-elseif $XDG_SESSION_TYPE == 'x11'
-	:command -range=% Pbcopy '<,'>y | call system('xsel --input --clipboard', @0)
-	:command Pbpaste put =system('xsel --output --clipboard')
-endif
 
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
