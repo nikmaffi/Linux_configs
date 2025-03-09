@@ -1,8 +1,10 @@
 call plug#begin()
 
-Plug 'preservim/nerdtree'
+Plug 'tpope/vim-surround'
+Plug 'preservim/nerdtree', {'on': 'NERDTreeToggle'}
 Plug 'jiangmiao/auto-pairs'
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
 
@@ -12,6 +14,7 @@ call plug#end()
 :set tabstop=4
 :set shiftwidth=4
 :set smarttab
+:set encoding=UTF-8
 :set softtabstop=4
 :set mouse=a
 
@@ -21,15 +24,6 @@ au BufNewFile,BufRead *.COB set filetype=cobol
 :syntax on
 :colorscheme catppuccin_mocha
 
-function! s:SetupTree()
-	if bufexists(1) && bufname(1) ==# ''
-		NERDTree $HOME
-	elseif &filetype !=# 'nerdtree'
-		NERDTreeFind
-	endif
-endfunction
-
 :command Term belowright term
-:command Tree call s:SetupTree()
 
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+nnoremap <C-t> :NERDTreeToggle<CR>
