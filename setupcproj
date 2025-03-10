@@ -24,6 +24,7 @@ if [ ! -d "$PRJ_DIR" ]; then
 
 int main(int argc, char *argv[]) {
 
+
     return 0;
 }
 EOL
@@ -84,11 +85,23 @@ for module in "$@"; do
 #ifndef __${module^^}_H__
 #define __${module^^}_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif //__${module^^}_H__
 EOL
 
     cat > "$PRJ_DIR/src/$module.c" << EOL
 #include <$module.h>
+
+
 EOL
 
     echo "#include <$module.h>" | cat - "$PRJ_DIR/src/main.c" > temp && mv temp "$PRJ_DIR/src/main.c"
