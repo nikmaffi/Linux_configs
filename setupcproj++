@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# check project name
+if [ -z "$1" ]; then
+    echo "SYNOPSIS: $0 project_name [modules...]"
+    exit -1
+fi
+
+PRJ_NAME="$1"
+PRJ_DIR="./$PRJ_NAME"
+
+shift 1
+
+# check if project already exists
+if [ ! -d "$PRJ_DIR" ]; then
+    # creating project directory structure
+    mkdir -p "$PRJ_DIR"/{src,include,bin,obj,tests,lib}
+
+    # creating main.c file
+    cat > "$PRJ_DIR/src/main.cpp" <<EOL
+#include <iostream>
+
+int main(int argc, char *argv[]) {
+
+
+    return 0;
+}
+EOL
+
+    # creating Makefile
+    cat > "$PRJ_DIR/Makefile" <<EOL
+CC=g++
+DB=gdb
+
+CFLAGS=-Wall -Wextra -Iinclude
+DEBUG_FLAGS=-g\$(DB) -DDEBUG -fsanitize=address
+RELEASE_FLAGS=-O2 -s -DNDEBUG
+
+SRC_DIR=src
+OBJ_DIR=obj
+BIN_DIR=bin
+INCLUDE_DIR=include
+
+SRCS=\$(wildcard \$(SRC_DIR)/*.cpp)
+OBJS=\$(patsubst \$(SRC_DIR)/%.cpp, \$(OBJ_DIR)/%.o, \$(SRCS))
+
+BIN=\$(BIN_DIR)/$PRJ_NAME
+
+all: debug
+
+\$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.cpp
+	\$(CC) \$(CFLAGS) -c \$< -o \$@
+
+debug: CFLAGS+=\$(DEBUG_FLAGS)
+debug: \$(BIN)
+
+release: CFLAGS+=\$(RELEASE_FLAGS)
+release: clean
+release: \$(BIN)
+
+\$(BIN): \$(OBJS)
+	\$(CC) \$(CFLAGS) \$^ -o \$@
+
+clean:
+	rm -rf \$(OBJ_DIR)/* \$(BIN_DIR)/*
+EOL
+
+    echo "Project '$PRJ_NAME' successfully created!"
+fi
+
+# creating modules
+if [ "$#" -eq 0 ]; then
+    exit 0
+fi
+
+for module in "$@"; do
+    if [ -f "$PRJ_DIR/include/$module.hpp" ]; then
+        echo "Warning: Module '$module' already exists!"
+        continue
+    fi
+
+    cat > "$PRJ_DIR/include/$module.hpp" << EOL
+#ifndef __${module^^}_HPP__
+#define __${module^^}_HPP__
+
+
+
+#endif //__${module^^}_HPP__
+EOL
+
+    cat > "$PRJ_DIR/src/$module.cpp" << EOL
+#include <$module.hpp>
+
+
+EOL
+
+    echo "#include <$module.hpp>" | cat - "$PRJ_DIR/src/main.cpp" > temp && mv temp "$PRJ_DIR/src/main.cpp"
+
+    echo "Module '$module' added to $PRJ_NAME!"
+done
