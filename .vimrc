@@ -17,6 +17,7 @@ call plug#end()
 :set encoding=UTF-8
 :set softtabstop=4
 :set mouse=a
+:set clipboard=unnamedplus
 
 au BufNewFile,BufRead *.COB set filetype=cobol
 
