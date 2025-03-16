@@ -94,7 +94,5 @@ EOL
 
 EOL
 
-    echo "#include <$module.hpp>" | cat - "$PRJ_DIR/src/main.cpp" > temp && mv temp "$PRJ_DIR/src/main.cpp"
-
     echo "Module '$module' added to $PRJ_NAME!"
 done

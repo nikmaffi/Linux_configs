@@ -104,7 +104,5 @@ EOL
 
 EOL
 
-    echo "#include <$module.h>" | cat - "$PRJ_DIR/src/main.c" > temp && mv temp "$PRJ_DIR/src/main.c"
-
     echo "Module '$module' added to $PRJ_NAME!"
 done
