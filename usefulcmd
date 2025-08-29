@@ -1,7 +1,0 @@
-#!/bin/bash
-
-echo -e "ssh    --> ssh -p port user@host"
-echo -e "sshfs  --> sshfs user@host:dir mount -p port"
-echo -e "rsync  --> rsync -va(n) --delete src dst\n"
-
-echo -e "RISC-V --> riscv64-elf-gcc -S -march=rv32i -mabi=ilp32 <file>"
