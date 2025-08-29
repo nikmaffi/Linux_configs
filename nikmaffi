@@ -1,5 +1,215 @@
 #!/bin/bash
 
+run() {
+    echo "executing $*"
+    "$@"
+}
+
+
+
+new_c_project() {
+    PRJ_NAME="$1"
+    PRJ_DIR="./$PRJ_NAME"
+
+    shift 1
+
+    # check if project already exists
+    if [ ! -d "$PRJ_DIR" ]; then
+        # creating project directory structure
+        mkdir -p "$PRJ_DIR"/{src,include,bin,obj,tests,lib}
+
+        # creating main.c file
+        cat > "$PRJ_DIR/src/main.c" <<EOL
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+
+
+    return 0;
+}
+EOL
+
+        # creating Makefile
+        cat > "$PRJ_DIR/Makefile" <<EOL
+CC=$NKM_C_COMP
+DB=$NKM_CCPP_DB
+
+CFLAGS=-Wall -Wextra -I\$(INCLUDE_DIR)
+DEBUG_FLAGS=-g\$(DB) -DDEBUG -fsanitize=address
+RELEASE_FLAGS=-O2 -s -DNDEBUG
+
+SRC_DIR=src
+OBJ_DIR=obj
+BIN_DIR=bin
+INCLUDE_DIR=include
+
+SRCS=\$(wildcard \$(SRC_DIR)/*.c)
+OBJS=\$(patsubst \$(SRC_DIR)/%.c, \$(OBJ_DIR)/%.o, \$(SRCS))
+LIBS=
+
+BIN=\$(BIN_DIR)/$PRJ_NAME
+
+all: debug
+
+\$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.c
+	\$(CC) \$(CFLAGS) -c \$< -o \$@
+
+debug: CFLAGS+=\$(DEBUG_FLAGS)
+debug: \$(BIN)
+
+release: CFLAGS+=\$(RELEASE_FLAGS)
+release: clean
+release: \$(BIN)
+
+\$(BIN): \$(OBJS)
+	\$(CC) \$(CFLAGS) \$^ -o \$@ \$(LIBS)
+
+clean:
+	rm -rf \$(OBJ_DIR)/* \$(BIN_DIR)/*
+EOL
+
+        echo "Project '$PRJ_NAME' successfully created!"
+    fi
+
+    # creating modules
+    if [ "$#" -eq 0 ]; then
+        exit 0
+    fi
+
+    for module in "$@"; do
+        if [ -f "$PRJ_DIR/include/$module.h" ]; then
+            echo "Warning: Module '$module' already exists!"
+            continue
+        fi
+
+        cat > "$PRJ_DIR/include/$module.h" << EOL
+#ifndef __${module^^}_H__
+#define __${module^^}_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //__${module^^}_H__
+EOL
+
+        cat > "$PRJ_DIR/src/$module.c" << EOL
+#include <$module.h>
+
+
+EOL
+
+        echo "Module '$module' added to $PRJ_NAME!"
+    done
+}
+
+
+
+new_cpp_project() {
+    PRJ_NAME="$1"
+    PRJ_DIR="./$PRJ_NAME"
+
+    shift 1
+
+    # check if project already exists
+    if [ ! -d "$PRJ_DIR" ]; then
+        # creating project directory structure
+        mkdir -p "$PRJ_DIR"/{src,include,bin,obj,tests,lib}
+
+        # creating main.c file
+        cat > "$PRJ_DIR/src/main.cpp" <<EOL
+#include <iostream>
+
+int main(int argc, char *argv[]) {
+
+
+    return 0;
+}
+EOL
+
+        # creating Makefile
+        cat > "$PRJ_DIR/Makefile" <<EOL
+CC=$NKM_CPP_COMP
+DB=$NKM_CCPP_DB
+
+CFLAGS=-Wall -Wextra -I\$(INCLUDE_DIR)
+DEBUG_FLAGS=-g\$(DB) -DDEBUG -fsanitize=address
+RELEASE_FLAGS=-O2 -s -DNDEBUG
+
+SRC_DIR=src
+OBJ_DIR=obj
+BIN_DIR=bin
+INCLUDE_DIR=include
+
+SRCS=\$(wildcard \$(SRC_DIR)/*.cpp)
+OBJS=\$(patsubst \$(SRC_DIR)/%.cpp, \$(OBJ_DIR)/%.o, \$(SRCS))
+LIBS=
+
+BIN=\$(BIN_DIR)/$PRJ_NAME
+
+all: debug
+
+\$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.cpp
+	\$(CC) \$(CFLAGS) -c \$< -o \$@
+
+debug: CFLAGS+=\$(DEBUG_FLAGS)
+debug: \$(BIN)
+
+release: CFLAGS+=\$(RELEASE_FLAGS)
+release: clean
+release: \$(BIN)
+
+\$(BIN): \$(OBJS)
+	\$(CC) \$(CFLAGS) \$^ -o \$@ \$(LIBS)
+
+clean:
+	rm -rf \$(OBJ_DIR)/* \$(BIN_DIR)/*
+EOL
+
+        echo "Project '$PRJ_NAME' successfully created!"
+    fi
+
+    # creating modules
+    if [ "$#" -eq 0 ]; then
+        exit 0
+    fi
+
+    for module in "$@"; do
+        if [ -f "$PRJ_DIR/include/$module.hpp" ]; then
+            echo "Warning: Module '$module' already exists!"
+            continue
+        fi
+
+        cat > "$PRJ_DIR/include/$module.hpp" << EOL
+#ifndef __${module^^}_HPP__
+#define __${module^^}_HPP__
+
+
+
+#endif //__${module^^}_HPP__
+EOL
+
+        cat > "$PRJ_DIR/src/$module.cpp" << EOL
+#include <$module.hpp>
+
+
+EOL
+
+        echo "Module '$module' added to $PRJ_NAME!"
+    done
+}
+
+
+
+NKM=$(basename "$0")
 NKM_CONFIG="${HOME}/.nikmaffi_conf"
 
 # Checking config file
@@ -13,7 +223,10 @@ ssh port                       (22 for default)
 local directory to backup      (with '/' at the end)
 remote target backup directory (with '/' at the end)
 local mount point directory
-remote directory to mount"
+remote directory to mount
+C compiler
+C++ compiler
+C/C++ debugger"
 
 	exit 1
 fi
@@ -27,17 +240,22 @@ IFS= read -r NKM_LOCAL_BK_DIR < <(sed -n '4p' ${NKM_CONFIG})
 IFS= read -r NKM_REMOTE_BK_DIR < <(sed -n '5p' ${NKM_CONFIG})
 IFS= read -r NKM_LOCAL_MOUNT < <(sed -n '6p' ${NKM_CONFIG})
 IFS= read -r NKM_REMOTE_MOUNT < <(sed -n '7p' ${NKM_CONFIG})
+IFS= read -r NKM_C_COMP < <(sed -n '8p' ${NKM_CONFIG})
+IFS= read -r NKM_CPP_COMP < <(sed -n '9p' ${NKM_CONFIG})
+IFS= read -r NKM_CCPP_DB < <(sed -n '10p' ${NKM_CONFIG})
 
 # Checking number of parameters
 if [ $# -lt 1 ]; then
-	echo "Usage: $0 {${NKM_REMOTE_HOST}|update} ..."
+	echo "SYNOPSIS: $NKM {${NKM_REMOTE_HOST}|update|newproj} [OPTIONS]"
     exit 1
 fi
 
-# Checking remote computer actions
 if [[ "$1" == "${NKM_REMOTE_HOST}" ]]; then
+	# Remote computer actions
+
+	# Checking number of parameters
 	if [ $# -lt 2 ]; then
-		echo "Usage: $0 $1 {connect|mount|umount|backup-view|backup}"
+		echo "SYNOPSIS: $NKM $1 {connect|mount|umount|backup-view|backup}"
 		exit 1
 	fi
 
@@ -45,56 +263,83 @@ if [[ "$1" == "${NKM_REMOTE_HOST}" ]]; then
 	case "$2" in
 		connect)
 			echo "Connecting to ${NKM_REMOTE_HOST}..."
-			ssh -p "${NKM_SSH_PORT}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}"
+			run ssh -p "${NKM_SSH_PORT}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}"
 			;;
 		mount)
 			echo "Mounting ${NKM_REMOTE_MOUNT} directory..."
-			sshfs "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_MOUNT}" "${NKM_LOCAL_MOUNT}" -p "${NKM_SSH_PORT}"
+			run sshfs "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_MOUNT}" "${NKM_LOCAL_MOUNT}" -p "${NKM_SSH_PORT}"
 			;;
 		umount)
 			echo "Unmounting ${NKM_LOCAL_MOUNT} directory..."
-			umount "${NKM_LOCAL_MOUNT}"
+			run umount "${NKM_LOCAL_MOUNT}"
 			;;
 		backup-view)
 			echo "Making backup (dry run)..."
-			rsync -van --delete --exclude 'env/' -e "ssh -p ${NKM_SSH_PORT}" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
+			run rsync -van --delete --exclude \'env/\' -e "ssh -p ${NKM_SSH_PORT}" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
 			;;
 		backup)
 			echo "Making backup..."
-			rsync -va --delete --exclude 'env/' -e "ssh -p ${NKM_SSH_PORT}" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
+			run rsync -va --delete --exclude \'env/\' -e "ssh -p ${NKM_SSH_PORT}" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
 			;;
 		*)
+			echo "Error: '$2' is not an option!"
 			exit 1
 			;;
 	esac
-fi
+elif [[ "$1" == "update" ]]; then
+	# System update action
+	echo "Updating the system..."
 
-# Checking system update action
-if [[ "$1" == "update" ]]; then
 	# Updating the system
 	if command -v pacman &> /dev/null; then
 		# Arch-based
-		sudo pacman -Syu
+		run sudo pacman -Syu
 
 		# Updating AUR packages
 		if command -v yay &> /dev/null; then
-			yay -Syu
+			run yay -Syu
 		fi
 	elif command -v apt &> /dev/null; then
 		# Debian-based
-		sudo apt update
-		sudo apt full-upgrade -y
+		run sudo apt update
+		run sudo apt full-upgrade -y
 	fi
 
 	# Updating anaconda
 	if command -v conda &> /dev/null; then
-		conda update -n base --all
-		conda update -n appdev --all
-		conda update -n appdev python
+		run conda update -n base --all
+		run conda update -n appdev --all
+		run conda update -n appdev python
 	fi
 
 	# Updating flatpak
 	if command -v flatpak &> /dev/null; then
-		flatpak update
+		run flatpak update
 	fi
+elif [[ "$1" == "newproj" ]]; then
+	# Remote computer actions
+
+	# Checking number of parameters
+	if [ $# -lt 3 ]; then
+		echo "SYNOPSIS: $NKM $1 {c|cpp} PROJECT_NAME [MODULES]"
+		exit 1
+	fi
+
+	# Switch on second arg
+	case "$2" in
+		c)
+            shift 2
+			new_c_project $@
+			;;
+        cpp)
+            shift 2
+            new_cpp_project $@
+            ;;
+		*)
+			echo "Error: '$2' is not an option!"
+			exit 1
+			;;
+	esac
+else
+	echo "Error: '$1' is not an option!"
 fi
