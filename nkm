@@ -1,12 +1,5 @@
 #!/bin/bash
 
-run() {
-    echo "executing $*"
-    "$@"
-}
-
-
-
 new_c_project() {
     PRJ_NAME="$1"
     PRJ_DIR="./$PRJ_NAME"
@@ -264,23 +257,23 @@ if [[ "$1" == "${NKM_REMOTE_HOST}" ]]; then
 	case "$2" in
 		connect)
 			echo "Connecting to ${NKM_REMOTE_HOST}..."
-			run ssh -p "${NKM_SSH_PORT}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}"
+			ssh -p "${NKM_SSH_PORT}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}"
 			;;
 		mount)
 			echo "Mounting ${NKM_REMOTE_MOUNT} directory..."
-			run sshfs "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_MOUNT}" "${NKM_LOCAL_MOUNT}" -p "${NKM_SSH_PORT}"
+			sshfs "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_MOUNT}" "${NKM_LOCAL_MOUNT}" -p "${NKM_SSH_PORT}"
 			;;
 		umount)
 			echo "Unmounting ${NKM_LOCAL_MOUNT} directory..."
-			run umount "${NKM_LOCAL_MOUNT}"
+			umount "${NKM_LOCAL_MOUNT}"
 			;;
 		backup-view)
 			echo "Making backup (dry run)..."
-			run rsync -van --delete --exclude \'env/\' -e \"ssh -p "${NKM_SSH_PORT}"\" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
+			rsync -van --delete --exclude 'env/' -e "ssh -p ${NKM_SSH_PORT}" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
 			;;
 		backup)
 			echo "Making backup..."
-			run rsync -va --delete --exclude \'env/\' -e \"ssh -p "${NKM_SSH_PORT}"\" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
+			rsync -va --delete --exclude 'env/' -e "ssh -p ${NKM_SSH_PORT}" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
 			;;
 		*)
 			echo "Error: '$2' is not an option!"
@@ -294,39 +287,39 @@ elif [[ "$1" == "update" ]]; then
 	# Updating the system
 	if command -v pacman &> /dev/null; then
 		# Arch-based
-		run sudo pacman -Syu
+		sudo pacman -Syu
 
 		# Updating AUR packages
 		if command -v yay &> /dev/null; then
-			run yay -Syu
+			yay -Syu
 		fi
 	elif command -v apt &> /dev/null; then
 		# Debian-based
-		run sudo apt update
-		run sudo apt full-upgrade -y
+		sudo apt update
+		sudo apt full-upgrade -y
 	fi
 
 	# Updating anaconda
 	if command -v conda &> /dev/null; then
-		run conda update -n base --all
-		run conda update -n appdev --all
-		run conda update -n appdev python
+		conda update -n base --all
+		conda update -n appdev --all
+		conda update -n appdev python
 	fi
 
 	# Updating flatpak
 	if command -v flatpak &> /dev/null; then
-		run flatpak update
+		flatpak update
 	fi
 elif [[ "$1" == "clean" ]]; then
 	# System clean (package manager)
+	echo "Cleaning the system..."
 	
 	if command -v pacman &> /dev/null; then
 		# Removing orphan packages
-		echo "executing sudo pacman -Rns \$(sudo pacman -Qqdt)"
 		sudo pacman -Rns $(sudo pacman -Qqdt)
 
 		# Cleaning pacman cache
-		run paccache -ruk1
+		paccache -ruk1
 	elif command -v apt &> /dev/null; then
 		# Removing unused dependencies
 		sudo apt autoremove --purge
