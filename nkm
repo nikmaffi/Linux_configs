@@ -210,7 +210,7 @@ EOL
 
 
 NKM=$(basename "$0")
-NKM_CONFIG="${HOME}/.nikmaffi_conf"
+NKM_CONFIG="${HOME}/.nkm.conf"
 
 # Checking config file
 if [ ! -f "${NKM_CONFIG}" ]; then
@@ -246,7 +246,7 @@ IFS= read -r NKM_CCPP_DB < <(sed -n '10p' ${NKM_CONFIG})
 
 # Checking number of parameters
 if [ $# -lt 1 ]; then
-	echo "SYNOPSIS: $NKM {${NKM_REMOTE_HOST}|update|newproj} [OPTIONS]"
+	echo "SYNOPSIS: $NKM {${NKM_REMOTE_HOST}|update|clean|newproj} [OPTIONS]"
     exit 1
 fi
 
@@ -275,11 +275,11 @@ if [[ "$1" == "${NKM_REMOTE_HOST}" ]]; then
 			;;
 		backup-view)
 			echo "Making backup (dry run)..."
-			run rsync -van --delete --exclude \'env/\' -e "ssh -p ${NKM_SSH_PORT}" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
+			run rsync -van --delete --exclude \'env/\' -e \"ssh -p "${NKM_SSH_PORT}"\" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
 			;;
 		backup)
 			echo "Making backup..."
-			run rsync -va --delete --exclude \'env/\' -e "ssh -p ${NKM_SSH_PORT}" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
+			run rsync -va --delete --exclude \'env/\' -e \"ssh -p "${NKM_SSH_PORT}"\" "${NKM_LOCAL_BK_DIR}" "${NKM_USERNAME}"@"${NKM_REMOTE_HOST}":"${NKM_REMOTE_BK_DIR}"
 			;;
 		*)
 			echo "Error: '$2' is not an option!"
@@ -315,6 +315,22 @@ elif [[ "$1" == "update" ]]; then
 	# Updating flatpak
 	if command -v flatpak &> /dev/null; then
 		run flatpak update
+	fi
+elif [[ "$1" == "clean" ]]; then
+	# System clean (package manager)
+	
+	if command -v pacman &> /dev/null; then
+		# Removing orphan packages	
+		run sudo pacman -Qqdt | sudo pacman -Rns -
+
+		# Cleaning pacman cache
+		run paccache -ruk1
+	elif command -v apt &> /dev/null; then
+		# Removing unused dependencies
+		sudo apt autoremove --purge
+
+		# Cleaning apt cache
+		sudo apt clean
 	fi
 elif [[ "$1" == "newproj" ]]; then
 	# Remote computer actions
