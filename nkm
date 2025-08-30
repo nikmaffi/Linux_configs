@@ -211,12 +211,13 @@ EOL
 
 NKM=$(basename "$0")
 NKM_CONFIG="${HOME}/.nkm.conf"
+NKM_CONFIG_NR=10
 
 # Checking config file
-if [ ! -f "${NKM_CONFIG}" ]; then
+if [ ! -f "${NKM_CONFIG}" ] || [ $(wc -l < "${NKM_CONFIG}") -ne ${NKM_CONFIG_NR} ]; then
 	echo "Please create the configuration file: ${NKM_CONFIG}"
 
-	echo -e "\nConfiguration file format:
+	echo -e "\nConfiguration file specs:
 username                       (local and remote)
 remote host                    (hostname or ip address)
 ssh port                       (22 for default)
@@ -320,8 +321,9 @@ elif [[ "$1" == "clean" ]]; then
 	# System clean (package manager)
 	
 	if command -v pacman &> /dev/null; then
-		# Removing orphan packages	
-		run sudo pacman -Qqdt | sudo pacman -Rns -
+		# Removing orphan packages
+		echo "executing sudo pacman -Rns \$(sudo pacman -Qqdt)"
+		sudo pacman -Rns $(sudo pacman -Qqdt)
 
 		# Cleaning pacman cache
 		run paccache -ruk1
