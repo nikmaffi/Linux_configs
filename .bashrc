@@ -18,6 +18,7 @@ then
 fi
 
 export PATH="$PATH:.../Linux_configs"
+export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:.../calc/bin"
 
 #cowsay Hello $(whoami)!
