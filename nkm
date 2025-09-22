@@ -204,7 +204,7 @@ EOL
 
 NKM=$(basename "$0")
 NKM_CONFIG="${HOME}/.nkm.conf"
-NKM_CONFIG_NR=10
+NKM_CONFIG_NR=11
 
 # Checking config file
 if [ ! -f "${NKM_CONFIG}" ] || [ $(wc -l < "${NKM_CONFIG}") -ne ${NKM_CONFIG_NR} ]; then
@@ -218,6 +218,7 @@ local directory to backup      (with '/' at the end)
 remote target backup directory (with '/' at the end)
 local mount point directory
 remote directory to mount
+python env to update           ('NULL' for none)
 C compiler
 C++ compiler
 C/C++ debugger"
@@ -234,9 +235,10 @@ IFS= read -r NKM_LOCAL_BK_DIR < <(sed -n '4p' ${NKM_CONFIG})
 IFS= read -r NKM_REMOTE_BK_DIR < <(sed -n '5p' ${NKM_CONFIG})
 IFS= read -r NKM_LOCAL_MOUNT < <(sed -n '6p' ${NKM_CONFIG})
 IFS= read -r NKM_REMOTE_MOUNT < <(sed -n '7p' ${NKM_CONFIG})
-IFS= read -r NKM_C_COMP < <(sed -n '8p' ${NKM_CONFIG})
-IFS= read -r NKM_CPP_COMP < <(sed -n '9p' ${NKM_CONFIG})
-IFS= read -r NKM_CCPP_DB < <(sed -n '10p' ${NKM_CONFIG})
+IFS= read -r NKM_PYTHON_ENV < <(sed -n '8p' ${NKM_CONFIG})
+IFS= read -r NKM_C_COMP < <(sed -n '9p' ${NKM_CONFIG})
+IFS= read -r NKM_CPP_COMP < <(sed -n '10p' ${NKM_CONFIG})
+IFS= read -r NKM_CCPP_DB < <(sed -n '11p' ${NKM_CONFIG})
 
 # Checking number of parameters
 if [ $# -lt 1 ]; then
@@ -297,13 +299,12 @@ elif [[ "$1" == "update" ]]; then
 		# Debian-based
 		sudo apt update
 		sudo apt full-upgrade -y
-	fi
-
-	# Updating anaconda
-	if command -v conda &> /dev/null; then
-		conda update -n base --all
-		conda update -n appdev --all
-		conda update -n appdev python
+	elif command -v dnf &> /dev/null; then
+		# Fedora
+		sudo dnf update -y
+	elif command -v rpm-ostree &> /dev/null; then
+		# Fedora Silverblue
+		rpm-ostree upgrade
 	fi
 
 	# Updating flatpak
@@ -311,9 +312,39 @@ elif [[ "$1" == "update" ]]; then
 		flatpak update
 	fi
 
-	# Updating distrobox
+	# Updating Distrobox
 	if command -v distrobox &> /dev/null; then
-		distrobox-upgrade --all
+		# Distrobox upgrade choice
+		echo ""
+		read -p "Update distrobox? [y/N]: " answ
+
+		if [[ "$answ" == "y" || "$answ" == "Y" ]]; then
+			# Updating Distrobox
+			distrobox-upgrade --all
+		fi
+	fi
+
+	# Updating Python env
+	if [[ "$NKM_PYTHON_ENV" != "NULL" ]]; then
+		# Entering the environment
+		source "$NKM_PYTHON_ENV/bin/activate"
+
+		echo -e "\npip packages to update:"
+
+		# Listing packages and updating it
+		pip list --outdated
+		# pip list --outdated --format=json | python -c "import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))" | xargs -n1 pip install -U
+		# pip check
+
+		# Exiting the environment
+		deactivate
+	fi
+
+	# Updating Anaconda
+	if command -v conda &> /dev/null; then
+		conda update -n base --all
+		conda update -n appdev --all
+		conda update -n appdev python
 	fi
 elif [[ "$1" == "clean" ]]; then
 	# System clean (package manager)
@@ -330,16 +361,27 @@ elif [[ "$1" == "clean" ]]; then
 		sudo apt autoremove --purge
 
 		# Cleaning apt cache
-		sudo apt clean
+		sudo apt autoclean
+	elif command -v dnf &> /dev/null; then
+		# Removing unused dependencies
+		sudo dnf autoremove
+
+		# Cleaning dnf cache
+		sudo dnf clean packages
 	fi
 
 	# Cleaning flatpak
 	if command -v flatpak &> /dev/null; then
 		flatpak uninstall --delete-data --unused
 	fi
-elif [[ "$1" == "newproj" ]]; then
-	# Remote computer actions
 
+	# Cleaning podman
+	if command -v podman &> /dev/null; then
+		podman image prune -a
+		podman volume prune
+		podman network prune
+	fi
+elif [[ "$1" == "newproj" ]]; then
 	# Checking number of parameters
 	if [ $# -lt 3 ]; then
 		echo "SYNOPSIS: $NKM $1 {c|cpp} PROJECT_NAME [MODULES]"
