@@ -324,6 +324,11 @@ elif [[ "$1" == "update" ]]; then
 		fi
 	fi
 
+	# Updating vim plugins (vimplug)
+	if command -v vim &> /dev/null; then
+		vim -c "PlugUpdate" -c "q" -c "q"
+	fi
+
 	# Updating Python env
 	if [[ "$NKM_PYTHON_ENV" != "NULL" ]]; then
 		# Entering the environment
@@ -380,6 +385,11 @@ elif [[ "$1" == "clean" ]]; then
 		podman image prune -a
 		podman volume prune
 		podman network prune
+	fi
+
+	# Cleaning vim plugins (vimplug)
+	if command -v vim &> /dev/null; then
+		vim -c "PlugClean" -c "q" -c "q"
 	fi
 elif [[ "$1" == "newproj" ]]; then
 	# Checking number of parameters
