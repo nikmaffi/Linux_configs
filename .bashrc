@@ -2,7 +2,7 @@
 # User configurations
 #alias rclonemnt='rclone mount gdrive:/Drive ~/Documenti/Drive'
 
-alias tree='tree -C'
+alias tree='tree -C -I ".git"'
 
 alias la='ls -a'
 alias ll='ls -lah'
