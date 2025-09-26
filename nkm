@@ -360,7 +360,7 @@ elif [[ "$1" == "clean" ]]; then
 		sudo pacman -Rns $(sudo pacman -Qqdt)
 
 		# Cleaning pacman cache
-		paccache -ruk1
+		paccache -rk1
 	elif command -v apt &> /dev/null; then
 		# Removing unused dependencies
 		sudo apt autoremove --purge
@@ -390,6 +390,12 @@ elif [[ "$1" == "clean" ]]; then
 	# Cleaning vim plugins (vimplug)
 	if command -v vim &> /dev/null; then
 		vim -c "PlugClean" -c "q" -c "q"
+	fi
+
+	# Cleaning logs and core dumps
+	if command -v journalctl &> /dev/null; then
+		sudo journalctl --vacuum-time=1d
+		sudo rm /var/lib/systemd/coredump/*
 	fi
 elif [[ "$1" == "newproj" ]]; then
 	# Checking number of parameters
