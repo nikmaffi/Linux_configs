@@ -29,9 +29,11 @@ EOL
 CC=$NKM_C_COMP
 DB=$NKM_CCPP_DB
 
-CFLAGS=-Wall -Wextra -I\$(INCLUDE_DIR)
+ARCH=64
+
+CFLAGS=-m\$(ARCH) -std=c23 -pedantic -Wvla -Wall -Wextra -funsigned-char -I\$(INCLUDE_DIR)
 DEBUG_FLAGS=-g\$(DB) -DDEBUG -fsanitize=address
-RELEASE_FLAGS=-O2 -s -DNDEBUG
+RELEASE_FLAGS=-O2 -DNDEBUG
 
 SRC_DIR=src
 OBJ_DIR=obj
@@ -46,18 +48,27 @@ BIN=\$(BIN_DIR)/$PRJ_NAME
 
 all: debug
 
-\$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.c
+\$(OBJ_DIR):
+	mkdir -p $@
+
+\$(BIN_DIR):
+	mkdir -p $@
+
+\$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.c | \$(OBJ_DIR)
 	\$(CC) \$(CFLAGS) -c \$< -o \$@
+
+\$(BIN): \$(OBJS) | \$(BIN_DIR)
+	\$(CC) \$(CFLAGS) \$< -o \$@ \$(LIBS)
 
 debug: CFLAGS+=\$(DEBUG_FLAGS)
 debug: \$(BIN)
 
 release: CFLAGS+=\$(RELEASE_FLAGS)
-release: clean
-release: \$(BIN)
+release: clean \$(BIN)
+	strip \$(BIN)
 
-\$(BIN): \$(OBJS)
-	\$(CC) \$(CFLAGS) \$^ -o \$@ \$(LIBS)
+run: all
+	./\$(BIN)
 
 clean:
 	rm -rf \$(OBJ_DIR)/* \$(BIN_DIR)/*
