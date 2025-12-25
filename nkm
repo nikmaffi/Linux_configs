@@ -58,7 +58,7 @@ all: debug
 	\$(CC) \$(CFLAGS) -c \$< -o \$@
 
 \$(BIN): \$(OBJS) | \$(BIN_DIR)
-	\$(CC) \$(CFLAGS) \$< -o \$@ \$(LIBS)
+	\$(CC) \$(CFLAGS) \$^ -o \$@ \$(LIBS)
 
 debug: CFLAGS+=\$(DEBUG_FLAGS)
 debug: \$(BIN)
