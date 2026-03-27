@@ -49,10 +49,10 @@ BIN=\$(BIN_DIR)/$PRJ_NAME
 all: debug
 
 \$(OBJ_DIR):
-	mkdir -p $@
+	mkdir -p \$@
 
 \$(BIN_DIR):
-	mkdir -p $@
+	mkdir -p \$@
 
 \$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.c | \$(OBJ_DIR)
 	\$(CC) \$(CFLAGS) -c \$< -o \$@
@@ -164,10 +164,10 @@ BIN=\$(BIN_DIR)/$PRJ_NAME
 all: debug
 
 \$(OBJ_DIR):
-	mkdir -p $@
+	mkdir -p \$@
 
 \$(BIN_DIR):
-	mkdir -p $@
+	mkdir -p \$@
 
 \$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.cpp | \$(OBJ_DIR)
 	\$(CC) \$(CFLAGS) -c \$< -o \$@
