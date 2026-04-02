@@ -240,6 +240,7 @@ new_cobol_project() {
        IDENTIFICATION DIVISION.
        PROGRAM-ID.    $PRJ_NAME.
        AUTHOR.        Nicolo' Maffi.
+       INSTALLATION.  $HOSTNAME.
        DATE-WRITTEN.  $(date +"%e %b %Y").
        DATE-COMPILED. $(date +"%e %b %Y").
        SECURITY.      Confidential.
@@ -320,6 +321,7 @@ EOL
        IDENTIFICATION DIVISION.
        PROGRAM-ID.    $PRJ_NAME-$module.
        AUTHOR.        Nicolo' Maffi.
+       INSTALLATION.  $HOSTNAME.
        DATE-WRITTEN.  $(date +"%e %b %Y").
        DATE-COMPILED. $(date +"%e %b %Y").
        SECURITY.      Confidential.
