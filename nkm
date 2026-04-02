@@ -9,7 +9,7 @@ new_c_project() {
     # check if project already exists
     if [ ! -d "$PRJ_DIR" ]; then
         # creating project directory structure
-        mkdir -p "$PRJ_DIR"/{src,include,bin,obj,tests,lib}
+        mkdir -p "$PRJ_DIR"/{src,include,tests,lib}
 
         # creating main.c file
         cat > "$PRJ_DIR/src/main.c" <<EOL
@@ -71,7 +71,7 @@ run: all
 	./\$(BIN)
 
 clean:
-	rm -rf \$(OBJ_DIR)/* \$(BIN_DIR)/*
+	rm -rf ./\$(OBJ_DIR)/* ./\$(BIN_DIR)/*
 EOL
 
         echo "Project '$PRJ_NAME' successfully created!"
@@ -126,7 +126,7 @@ new_cpp_project() {
     # check if project already exists
     if [ ! -d "$PRJ_DIR" ]; then
         # creating project directory structure
-        mkdir -p "$PRJ_DIR"/{src,include,bin,obj,tests,lib}
+        mkdir -p "$PRJ_DIR"/{src,include,tests,lib}
 
         # creating main.c file
         cat > "$PRJ_DIR/src/main.cpp" <<EOL
@@ -186,7 +186,7 @@ run: all
 	./\$(BIN)
 
 clean:
-	rm -rf \$(OBJ_DIR)/* \$(BIN_DIR)/*
+	rm -rf ./\$(OBJ_DIR)/* ./\$(BIN_DIR)/*
 EOL
 
         echo "Project '$PRJ_NAME' successfully created!"
@@ -216,6 +216,140 @@ EOL
 #include <$module.hpp>
 
 
+EOL
+
+        echo "Module '$module' added to $PRJ_NAME!"
+    done
+}
+
+
+
+new_cobol_project() {
+    PRJ_NAME="$1"
+    PRJ_DIR="./$PRJ_NAME"
+
+    shift 1
+
+    # check if project already exists
+    if [ ! -d "$PRJ_DIR" ]; then
+        # creating project directory structure
+        mkdir -p "$PRJ_DIR"/{src,lib}
+
+        # creating main.c file
+        cat > "$PRJ_DIR/src/main.cob" <<EOL
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    $PRJ_NAME.
+       AUTHOR.        Nicolo' Maffi.
+       DATE-WRITTEN.  $(date +"%e %b %Y").
+       DATE-COMPILED. $(date +"%e %b %Y").
+       SECURITY.      Confidential.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER. $HOSTNAME.
+       OBJECT-COMPUTER. $HOSTNAME
+           MEMORY SIZE ... CHARACTERS
+           PROGRAM COLLATING SEQUENCE IS $PRJ_NAME-ALPHA
+           SEGMENT-LIMIT IS ... .
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA
+           CURRENCY SIGN IS '$'
+           ALPHABET $PRJ_NAME-ALPHA IS NATIVE.
+	   REPOSITORY.
+           FUNCTION ALL INTRINSIC.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+       I-O-CONTROL.
+       DATA DIVISION.
+       FILE SECTION.
+       WORKING-STORAGE SECTION.
+       LOCAL-STORAGE SECTION.
+       LINKAGE SECTION.
+       SCREEN SECTION.
+       PROCEDURE DIVISION.
+       DECLARATIVES.
+       END DECLARATIVES.
+           STOP RUN.
+       END PROGRAM $PRJ_NAME.
+EOL
+
+        # creating Makefile
+        cat > "$PRJ_DIR/Makefile" <<EOL
+COBC=cobc
+
+COBFLAGS=-x -std=ibm -Wall -Wextra -Wno-terminator
+
+SRC_DIR=src
+BIN_DIR=bin
+
+SRCS=\$(wildcard \$(SRC_DIR)/*.cob)
+LIBS=\$(addprefix -l, )
+
+BIN=\$(BIN_DIR)/$PRJ_NAME
+
+all: \$(BIN)
+
+\$(BIN_DIR):
+	mkdir -p \$@
+
+\$(BIN): \$(SRCS) | \$(BIN_DIR)
+	\$(COBC) \$(COBFLAGS) \$^ -o \$@ \$(LIBS)
+	strip \$(BIN)
+
+run: all
+	./\$(BIN)
+
+clean:
+	rm -rf ./\$(BIN_DIR)/*
+EOL
+
+        echo "Project '$PRJ_NAME' successfully created!"
+    fi
+
+    # creating modules
+    if [ "$#" -eq 0 ]; then
+        exit 0
+    fi
+
+    for module in "$@"; do
+        if [ -f "$PRJ_DIR/src/$module.cob" ]; then
+            echo "Warning: Module '$module' already exists!"
+            continue
+        fi
+
+        cat > "$PRJ_DIR/src/$module.cob" << EOL
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.    $PRJ_NAME-$module.
+       AUTHOR.        Nicolo' Maffi.
+       DATE-WRITTEN.  $(date +"%e %b %Y").
+       DATE-COMPILED. $(date +"%e %b %Y").
+       SECURITY.      Confidential.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER. $HOSTNAME.
+       OBJECT-COMPUTER. $HOSTNAME
+           MEMORY SIZE ... CHARACTERS
+           PROGRAM COLLATING SEQUENCE IS $module-ALPHA
+           SEGMENT-LIMIT IS ... .
+       SPECIAL-NAMES.
+           DECIMAL-POINT IS COMMA
+           CURRENCY SIGN IS '$'
+           ALPHABET $module-ALPHA IS NATIVE.
+	   REPOSITORY.
+           FUNCTION ALL INTRINSIC.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+       I-O-CONTROL.
+       DATA DIVISION.
+       FILE SECTION.
+       WORKING-STORAGE SECTION.
+       LOCAL-STORAGE SECTION.
+       LINKAGE SECTION.
+       SCREEN SECTION.
+       PROCEDURE DIVISION.
+       DECLARATIVES.
+       END DECLARATIVES.
+           STOP RUN.
+       END PROGRAM $PRJ_NAME-$module.
 EOL
 
         echo "Module '$module' added to $PRJ_NAME!"
@@ -422,7 +556,7 @@ elif [[ "$1" == "clean" ]]; then
 elif [[ "$1" == "newproj" ]]; then
 	# Checking number of parameters
 	if [ $# -lt 3 ]; then
-		echo "SYNOPSIS: $NKM $1 {c|cpp} PROJECT_NAME [MODULES]"
+		echo "SYNOPSIS: $NKM $1 {c|cpp|cobol} PROJECT_NAME [MODULES]"
 		exit 1
 	fi
 
@@ -436,6 +570,10 @@ elif [[ "$1" == "newproj" ]]; then
             shift 2
             new_cpp_project $@
             ;;
+		cobol)
+			shift 2
+			new_cobol_project $@
+			;;
 		*)
 			echo "Error: '$2' is not an option!"
 			exit 1
