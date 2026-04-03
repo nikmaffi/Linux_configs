@@ -31,8 +31,8 @@ DB=$NKM_CCPP_DB
 
 ARCH=64
 
-CFLAGS=-m\$(ARCH) -std=c99 -pedantic -Wvla -Wall -Wextra -funsigned-char -I\$(INCLUDE_DIR)
-DEBUG_FLAGS=-g\$(DB) -DDEBUG -fsanitize=address
+CFLAGS=-m\$(ARCH) -std=c99 -pedantic -Wvla -Wall -Wextra -Wconversion -Wfloat-conversion -Wsign-conversion -funsigned-char -I\$(INCLUDE_DIR)
+DEBUG_FLAGS=-g\$(DB) -DDEBUG -fsanitize=address -fsanitize=undefined
 RELEASE_FLAGS=-O2 -DNDEBUG
 
 SRC_DIR=src
@@ -146,8 +146,8 @@ DB=$NKM_CCPP_DB
 
 ARCH=64
 
-CFLAGS=-m\$(ARCH) -std=c++23 -pedantic -Wvla -Wall -Wextra -funsigned-char -I\$(INCLUDE_DIR)
-DEBUG_FLAGS=-g\$(DB) -DDEBUG -fsanitize=address
+CFLAGS=-m\$(ARCH) -std=c++23 -pedantic -Wvla -Wall -Wextra -Wconversion -Wfloat-conversion -Wsign-conversion -funsigned-char -I\$(INCLUDE_DIR)
+DEBUG_FLAGS=-g\$(DB) -DDEBUG -fsanitize=address -fsanitize=undefined
 RELEASE_FLAGS=-O2 -DNDEBUG
 
 SRC_DIR=src
